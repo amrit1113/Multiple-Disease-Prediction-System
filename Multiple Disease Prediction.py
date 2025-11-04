@@ -22,7 +22,7 @@ with open(os.path.join(BASE_DIR, 'diabetes_model.sav'), 'rb') as f:
 with open(os.path.join(BASE_DIR, 'heart_disease_model.sav'), 'rb') as f:
     heart_disease_model = pickle.load(f)
 
-with open(os.path.join(BASE_DIR, 'parkinsons_model.sav'), 'rb') as f:
+with open(os.path.join(BASE_DIR, 'covid_prediction_model.sav'), 'rb') as f:
     parkinsons_model = pickle.load(f)
 
 
