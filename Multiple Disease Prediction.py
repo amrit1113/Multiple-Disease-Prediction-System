@@ -8,19 +8,22 @@ Created on Tue Nov  4 01:35:45 2025
 import numpy as np
 import pickle
 import streamlit as st
+import os
 from streamlit_option_menu import option_menu
 
 # =======================
 # Load the Saved Models
 # =======================
-with open('C:/Users/Lenovo/OneDrive/Desktop/Multiple Diesease Prediction/diabetes_model.sav', 'rb') as f:
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+with open(os.path.join(BASE_DIR, 'diabetes_model.sav'), 'rb') as f:
     diabetes_model = pickle.load(f)
 
-with open('C:/Users/Lenovo/OneDrive/Desktop/Multiple Diesease Prediction/heart_disease_model.sav', 'rb') as f:
-    heart_model = pickle.load(f)
+with open(os.path.join(BASE_DIR, 'heart_disease_model.sav'), 'rb') as f:
+    heart_disease_model = pickle.load(f)
 
-with open('C:/Users/Lenovo/OneDrive/Desktop/Multiple Diesease Prediction/covid_prediction_model.sav', 'rb') as f:
-    covid_model = pickle.load(f)
+with open(os.path.join(BASE_DIR, 'parkinsons_model.sav'), 'rb') as f:
+    parkinsons_model = pickle.load(f)
 
 
 # =======================
