@@ -22,8 +22,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 with open(os.path.join(BASE_DIR, 'diabetes_model.sav'), 'rb') as f:
     diabetes_model = pickle.load(f)
 
-with open(os.path.join(BASE_DIR, 'heart_disease_model.sav'), 'rb') as f:
-    heart_disease_model = pickle.load(f)
+with open(os.path.join(BASE_DIR, 'heart_model.sav'), 'rb') as f:  # use the model you trained earlier
+    heart_model = pickle.load(f)
+
 
 with open(os.path.join(BASE_DIR, 'covid_prediction_model.sav'), 'rb') as f:
     covid_model = pickle.load(f)
@@ -88,55 +89,70 @@ if selected == 'Diabetes Prediction':
 
 
 # =======================
+# =======================
 # Heart Disease Prediction Page
 # =======================
 if selected == 'Heart Disease Prediction':
 
     st.title('❤️ Heart Disease Prediction System')
 
+    # --- User Input ---
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        age = st.text_input('Age')
+        age = st.number_input('Age', min_value=1, max_value=120, step=1)
+        resting_bp = st.number_input('Resting Blood Pressure (mm Hg)', min_value=50, max_value=250, step=1)
+        restecg = st.selectbox('Resting ECG', ['Normal', 'ST', 'LVH'])
+        st_slope = st.selectbox('ST Slope', ['Up', 'Flat', 'Down'])
+
     with col2:
-        sex = st.text_input('Sex (1 = Male, 0 = Female)')
+        sex = st.selectbox('Sex', ['M', 'F'])
+        cholesterol = st.number_input('Cholesterol (mg/dl)', min_value=100, max_value=600, step=1)
+        max_hr = st.number_input('Maximum Heart Rate Achieved', min_value=60, max_value=250, step=1)
+        oldpeak = st.number_input('ST Depression induced by exercise', min_value=0.0, max_value=10.0, step=0.1)
+
     with col3:
-        cp = st.text_input('Chest Pain Type (0-3)')
-    with col1:
-        trestbps = st.text_input('Resting Blood Pressure')
-    with col2:
-        chol = st.text_input('Serum Cholestoral in mg/dl')
-    with col3:
-        fbs = st.text_input('Fasting Blood Sugar > 120 mg/dl (1 = True, 0 = False)')
-    with col1:
-        restecg = st.text_input('Resting Electrocardiographic results (0-2)')
-    with col2:
-        thalach = st.text_input('Maximum Heart Rate Achieved')
-    with col3:
-        exang = st.text_input('Exercise Induced Angina (1 = Yes, 0 = No)')
-    with col1:
-        oldpeak = st.text_input('ST depression induced by exercise')
-    with col2:
-        slope = st.text_input('Slope of the peak exercise ST segment (0-2)')
-    with col3:
-        ca = st.text_input('Number of major vessels (0-3) colored by fluoroscopy')
-    with col1:
-        thal = st.text_input('Thalassemia (0 = normal, 1 = fixed defect, 2 = reversible defect)')
+        chest_pain = st.selectbox('Chest Pain Type', ['ATA', 'NAP', 'ASY', 'TA'])
+        fasting_bs = st.selectbox('Fasting Blood Sugar > 120 mg/dl', ['No', 'Yes'])
+        exercise_angina = st.selectbox('Exercise Induced Angina', ['N', 'Y'])
+
+    # --- Mappings (Convert to numeric values for the model) ---
+    sex_map = {'M': 1, 'F': 0}
+    cp_map = {'TA': 0, 'ATA': 1, 'NAP': 2, 'ASY': 3}
+    restecg_map = {'Normal': 0, 'ST': 1, 'LVH': 2}
+    exang_map = {'N': 0, 'Y': 1}
+    fbs_map = {'No': 0, 'Yes': 1}
+    slope_map = {'Up': 0, 'Flat': 1, 'Down': 2}
+
+    # --- Prepare input for prediction ---
+    heart_features = [
+        age,
+        sex_map[sex],
+        cp_map[chest_pain],
+        resting_bp,
+        cholesterol,
+        fbs_map[fasting_bs],
+        restecg_map[restecg],
+        max_hr,
+        exang_map[exercise_angina],
+        oldpeak,
+        slope_map[st_slope]
+    ]
 
     heart_diagnosis = ''
 
+    # --- Predict ---
     if st.button('Heart Disease Test Result'):
         try:
-            heart_prediction = heart_model.predict([[float(age), float(sex), float(cp), float(trestbps),
-                                                     float(chol), float(fbs), float(restecg), float(thalach),
-                                                     float(exang), float(oldpeak), float(slope), float(ca),
-                                                     float(thal)]])
+            heart_prediction = heart_model.predict([heart_features])
+
             if heart_prediction[0] == 1:
-                heart_diagnosis = 'The person has Heart Disease 💔'
+                heart_diagnosis = '💔 The person is likely to have Heart Disease.'
             else:
-                heart_diagnosis = 'The person does not have Heart Disease ❤️'
-        except:
-            heart_diagnosis = '⚠️ Please enter valid numeric values.'
+                heart_diagnosis = '💚 The person is unlikely to have Heart Disease.'
+
+        except Exception as e:
+            heart_diagnosis = f'⚠️ Error: {e}'
 
     st.success(heart_diagnosis)
 
